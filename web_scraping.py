@@ -1,0 +1,67 @@
+# wiki_chatbot_extended.py
+
+import requests
+from bs4 import BeautifulSoup
+
+# -----------------------------
+# Function to scrape Wikipedia
+# -----------------------------
+def scrape_wikipedia(query, max_paragraphs=3):
+    """
+    Returns a summary of a Wikipedia page for the query.
+    max_paragraphs: Number of paragraphs to return (default 3)
+    """
+    search_url = f"https://en.wikipedia.org/wiki/{query.replace(' ', '_')}"
+
+    try:
+        headers = {"User-Agent": "Mozilla/5.0"}
+        response = requests.get(search_url, headers=headers)
+
+        if response.status_code != 200:
+            return f"⚠️ Could not find Wikipedia page for '{query}'."
+
+        soup = BeautifulSoup(response.text, "html.parser")
+        paragraphs = soup.find_all('p')
+
+        summary_texts = []
+        for p in paragraphs:
+            text = p.text.strip()
+            if text:
+                summary_texts.append(text)
+            if len(summary_texts) >= max_paragraphs:
+                break
+
+        if summary_texts:
+            return '\n\n'.join(summary_texts)
+        else:
+            return f"⚠️ No summary found for '{query}'."
+
+    except Exception as e:
+        return f"⚠️ Error fetching Wikipedia page: {str(e)}"
+
+# -----------------------------
+# Chatbot response function
+# -----------------------------
+def chatbot_reply(user_input):
+    user_input = user_input.lower()
+    user_input = user_input.replace('tell me about', '').strip()
+    user_input = user_input.replace('what is', '').strip()
+
+    if user_input:
+        summary = scrape_wikipedia(user_input, max_paragraphs=3)
+        return f"🤖 {summary}"
+    else:
+        return "🤖 Please ask me about something."
+
+# -----------------------------
+# Console test
+# -----------------------------
+if __name__ == "__main__":
+    print("Welcome to Wikipedia Chatbot! Type 'exit' to quit.")
+    while True:
+        user_question = input("You: ")
+        if user_question.lower() in ['exit', 'quit']:
+            print("Chatbot: Goodbye!")
+            break
+        response = chatbot_reply(user_question)
+        print("Chatbot:", response)

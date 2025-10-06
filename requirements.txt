@@ -1,0 +1,17 @@
+# Web scraping
+selenium
+beautifulsoup4
+requests
+lxml
+
+# Finance data (optional, if using yfinance)
+yfinance
+pandas
+numpy
+
+# Optional: NLP / embeddings for chatbot later
+sentence-transformers
+transformers
+
+# Web automation (optional, if needed)
+webdriver-manager
